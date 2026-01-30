@@ -424,6 +424,69 @@ select option {
 .footer a:hover {
   color: var(--accent-text);
 }
+
+/* ── Login ── */
+.login-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: 32px 24px;
+  text-align: center;
+}
+.login-card h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.login-card p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-bottom: 24px;
+}
+.login-input {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  letter-spacing: 4px;
+  transition: border-color var(--transition);
+}
+.login-input::placeholder {
+  letter-spacing: 0;
+  color: var(--text-tertiary);
+}
+.login-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.login-error {
+  font-size: 12px;
+  color: #f87171;
+  margin-top: 8px;
+  min-height: 18px;
+}
+.login-card .btn-primary {
+  margin-top: 16px;
+}
+.login-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+.login-footer .lock-icon {
+  width: 12px;
+  height: 12px;
+  opacity: .5;
+}
 `;
 
 // ─── Client JS ─────────────────────────────────────────────────
@@ -431,6 +494,7 @@ select option {
 const CLIENT_JS = /*js*/ `
 const $ = s => document.querySelector(s);
 const app = $('#app');
+const TOKEN_KEY = 'firex_token';
 
 let state = {
   product: 'ng',
@@ -440,7 +504,96 @@ let state = {
   nArch: 'x64',
 };
 
+// ── Auth ──
+
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+function setToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+async function apiFetch(url) {
+  const token = getToken();
+  const res = await fetch(url, {
+    headers: token ? { 'X-Access-Token': token } : {}
+  });
+  const data = await res.json();
+  if (data.needAuth) {
+    clearToken();
+    renderLogin();
+    throw new Error('请先登录');
+  }
+  return data;
+}
+
+function renderLogin(error = '') {
+  app.innerHTML =
+    '<div class="login-card">' +
+    '<h1>FireX Downloader</h1>' +
+    '<p>请输入访问密码</p>' +
+    '<input type="password" class="login-input" id="pwd" placeholder="Password" autofocus>' +
+    '<div class="login-error" id="login-err">' + error + '</div>' +
+    '<button class="btn-primary" id="login-btn">进入</button>' +
+    '<div class="login-footer">' +
+    '<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>' +
+    '<span>私有访问</span>' +
+    '</div>' +
+    '</div>';
+
+  const pwdInput = $('#pwd');
+  const loginBtn = $('#login-btn');
+  const errEl = $('#login-err');
+
+  const doLogin = async () => {
+    const pwd = pwdInput.value.trim();
+    if (!pwd) {
+      errEl.textContent = '请输入密码';
+      return;
+    }
+    loginBtn.disabled = true;
+    loginBtn.textContent = '验证中...';
+    errEl.textContent = '';
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setToken(data.token);
+        render();
+      } else {
+        errEl.textContent = data.error || '密码错误';
+        pwdInput.value = '';
+        pwdInput.focus();
+      }
+    } catch (e) {
+      errEl.textContent = '网络错误';
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = '进入';
+    }
+  };
+
+  loginBtn.onclick = doLogin;
+  pwdInput.onkeydown = (e) => { if (e.key === 'Enter') doLogin(); };
+}
+
+// ── Main App ──
+
 function render() {
+  if (!getToken()) {
+    renderLogin();
+    return;
+  }
   app.innerHTML = renderHeader() + renderTabs() + renderReleaseToggle()
     + (state.product === 'ng' ? renderNG() : renderN())
     + renderFooter();
@@ -573,15 +726,14 @@ async function downloadNG() {
 
   try {
     const q = 'product=ng&release=' + state.release + '&arch=' + state.ngArch;
-    const res = await fetch('/api/info?' + q);
-    const d = await res.json();
+    const d = await apiFetch('/api/info?' + q);
     if (d.error) throw new Error(d.error);
 
     $('#ng-ver').textContent = d.version + (d.prerelease ? ' (pre)' : '');
     $('#ng-fname').textContent = d.filename;
     info.classList.add('show');
     st.textContent = 'Starting download...';
-    window.location.href = '/api/download?' + q;
+    window.location.href = '/api/download?' + q + '&token=' + encodeURIComponent(getToken());
     setTimeout(() => { st.textContent = ''; }, 2000);
   } catch (e) {
     st.textContent = 'Error: ' + e.message;
@@ -596,11 +748,10 @@ async function downloadN(pattern) {
 
   try {
     const q = 'product=n&release=' + state.release + '&pattern=' + encodeURIComponent(pattern);
-    const res = await fetch('/api/info?' + q);
-    const d = await res.json();
+    const d = await apiFetch('/api/info?' + q);
     if (d.error) throw new Error(d.error);
     st.textContent = d.version + ' · Downloading...';
-    window.location.href = '/api/download?' + q;
+    window.location.href = '/api/download?' + q + '&token=' + encodeURIComponent(getToken());
     setTimeout(() => { st.textContent = ''; }, 2000);
   } catch (e) {
     st.textContent = 'Error: ' + e.message;

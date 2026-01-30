@@ -6,3 +6,4 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 V2RAYNG_REPO = "2dust/v2rayNG"
 V2RAYN_REPO = "2dust/v2rayN"
+ACCESS_PASSWORD = "23666"

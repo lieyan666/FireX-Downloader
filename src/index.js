@@ -9,19 +9,44 @@ import { renderPage } from './page.js';
 
 const app = new Hono();
 
+// ─── 密码验证中间件 ────────────────────────────────────────────
+
+function verifyAuth(c, next) {
+  const password = c.env.ACCESS_PASSWORD || '23666';
+  const auth = c.req.header('X-Access-Token') || c.req.query('token');
+
+  if (auth !== password) {
+    return c.json({ error: 'Unauthorized', needAuth: true }, 401);
+  }
+  return next();
+}
+
 // ─── 页面 ──────────────────────────────────────────────────────
 
-app.get('/', (c) => c.html(renderPage()));
+app.get('/', (c) => {
+  return c.html(renderPage());
+});
+
+// ─── 验证密码 ──────────────────────────────────────────────────
+
+app.post('/api/auth', async (c) => {
+  const password = c.env.ACCESS_PASSWORD || '23666';
+  const body = await c.req.json();
+
+  if (body.password === password) {
+    return c.json({ success: true, token: password });
+  }
+  return c.json({ success: false, error: '密码错误' }, 401);
+});
 
 // ─── API: 获取版本信息 ─────────────────────────────────────────
 
-app.get('/api/info', async (c) => {
+app.get('/api/info', verifyAuth, async (c) => {
   const { product, release, arch, pattern } = c.req.query();
   const env = c.env;
 
   try {
     if (product === 'ng') {
-      // v2rayNG
       const repo = env.V2RAYNG_REPO || '2dust/v2rayNG';
       const rel = await getRelease(repo, release || 'latest');
       const archCfg = NG_ARCHS.find((a) => a.value === arch) || NG_ARCHS[0];
@@ -34,7 +59,6 @@ app.get('/api/info', async (c) => {
         prerelease: rel.prerelease,
       });
     } else {
-      // v2rayN
       const repo = env.V2RAYN_REPO || '2dust/v2rayN';
       const rel = await getRelease(repo, release || 'latest');
       const asset = findAsset(rel, pattern);
@@ -53,7 +77,7 @@ app.get('/api/info', async (c) => {
 
 // ─── API: 代理下载 ─────────────────────────────────────────────
 
-app.get('/api/download', async (c) => {
+app.get('/api/download', verifyAuth, async (c) => {
   const { product, release, arch, pattern } = c.req.query();
   const env = c.env;
 
