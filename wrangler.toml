@@ -1,7 +1,8 @@
 name = "firex-downloader"
-main = "src/worker.js"
+main = "src/index.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-GITHUB_REPO = "2dust/v2rayNG"
+V2RAYNG_REPO = "2dust/v2rayNG"
+V2RAYN_REPO = "2dust/v2rayN"
