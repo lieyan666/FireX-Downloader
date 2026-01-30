@@ -241,6 +241,20 @@ select option {
   box-shadow: 0 0 12px var(--accent-glow);
 }
 
+/* ── Platform Pills (larger) ── */
+.pills-lg {
+  display: flex;
+  gap: 8px;
+}
+.pills-lg .pill {
+  flex: 1;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: var(--radius);
+}
+
 /* ── Variant List ── */
 .variant-list {
   display: flex;
@@ -619,8 +633,8 @@ function tab(id, name, desc) {
 
 function renderReleaseToggle() {
   return '<div class="release-toggle">'
-    + '<button class="release-opt' + (state.release === 'latest' ? ' active' : '') + '" data-rel="latest">Latest</button>'
-    + '<button class="release-opt' + (state.release === 'pre-release' ? ' active' : '') + '" data-rel="pre-release">Pre-release</button>'
+    + '<button class="release-opt' + (state.release === 'latest' ? ' active' : '') + '" data-rel="latest">Latest 稳定版</button>'
+    + '<button class="release-opt' + (state.release === 'pre-release' ? ' active' : '') + '" data-rel="pre-release">Pre-release 最新</button>'
     + '</div>';
 }
 
@@ -645,9 +659,16 @@ function renderN() {
     '<div class="pill' + (state.nPlatform === p.value ? ' active' : '') + '" data-plat="' + p.value + '">' + p.label + '</div>'
   ).join('');
 
+  // 架构说明
+  const archLabels = {
+    windows: { x64: 'x64 · Intel / AMD', arm64: 'ARM64 · 高通等' },
+    linux: { x64: 'x64 · Intel / AMD', arm64: 'ARM64 · 树莓派等' },
+    macos: { x64: 'x64 · Intel 芯片', arm64: 'ARM64 · Apple Silicon' },
+  };
+
   let archs = Object.keys(N_VARIANTS[state.nPlatform]);
   let archPills = archs.map(a =>
-    '<div class="pill' + (state.nArch === a ? ' active' : '') + '" data-narch="' + a + '">' + a + '</div>'
+    '<div class="pill' + (state.nArch === a ? ' active' : '') + '" data-narch="' + a + '">' + archLabels[state.nPlatform][a] + '</div>'
   ).join('');
 
   let variants = N_VARIANTS[state.nPlatform][state.nArch] || [];
@@ -665,7 +686,7 @@ function renderN() {
     + '<ul>' + note.notes.map(n => '<li>' + n + '</li>').join('') + '</ul></div>';
 
   return '<div class="card">'
-    + '<div class="field"><span class="field-label">Platform</span><div class="pills" id="plat-pills">' + pills + '</div></div>'
+    + '<div class="field"><span class="field-label">Platform</span><div class="pills pills-lg" id="plat-pills">' + pills + '</div></div>'
     + '<div class="field"><span class="field-label">Architecture</span><div class="pills" id="arch-pills">' + archPills + '</div></div>'
     + '<div class="variant-list" id="n-variants">' + list + '</div>'
     + '<div class="status" id="n-status"></div>'

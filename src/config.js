@@ -42,12 +42,12 @@ export const N_VARIANTS = {
   },
   macos: {
     x64: [
-      { id: 'zip', pattern: 'v2rayN-macos-64.zip', label: 'ZIP 版', desc: '解压后运行' },
-      { id: 'dmg', pattern: 'v2rayN-macos-64.dmg', label: 'DMG 安装包', desc: '拖入 Applications 安装' },
+      { id: 'zip', pattern: 'v2rayN-macos-64.zip', label: 'ZIP 版', desc: 'Intel 芯片，解压后运行' },
+      { id: 'dmg', pattern: 'v2rayN-macos-64.dmg', label: 'DMG 安装包', desc: 'Intel 芯片，拖入 Applications' },
     ],
     arm64: [
-      { id: 'zip', pattern: 'v2rayN-macos-arm64.zip', label: 'ZIP 版', desc: '解压后运行' },
-      { id: 'dmg', pattern: 'v2rayN-macos-arm64.dmg', label: 'DMG 安装包', desc: '拖入 Applications 安装' },
+      { id: 'zip', pattern: 'v2rayN-macos-arm64.zip', label: 'ZIP 版', desc: 'Apple Silicon (M 系列)，解压后运行' },
+      { id: 'dmg', pattern: 'v2rayN-macos-arm64.dmg', label: 'DMG 安装包', desc: 'Apple Silicon (M 系列)，拖入 Applications' },
     ],
   },
 };
