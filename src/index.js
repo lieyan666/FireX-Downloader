@@ -3,7 +3,7 @@
  * v2rayNG (Android) + v2rayN (PC) GitHub Release 代理下载
  */
 import { Hono } from 'hono';
-import { NG_ARCHS, N_VARIANTS } from './config.js';
+import { NG_ARCHS } from './config.js';
 import { getRelease, findAsset, proxyDownload } from './github.js';
 import { renderPage } from './page.js';
 
@@ -28,7 +28,7 @@ app.get('/api/info', async (c) => {
       const asset = findAsset(rel, archCfg.pattern);
 
       return c.json({
-        version: rel.tag_name,
+        version: rel.tag,
         filename: asset.name,
         size: asset.size,
         prerelease: rel.prerelease,
@@ -40,7 +40,7 @@ app.get('/api/info', async (c) => {
       const asset = findAsset(rel, pattern);
 
       return c.json({
-        version: rel.tag_name,
+        version: rel.tag,
         filename: asset.name,
         size: asset.size,
         prerelease: rel.prerelease,

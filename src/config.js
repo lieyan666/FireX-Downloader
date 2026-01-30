@@ -1,9 +1,6 @@
 /**
- * GitHub Release 相关配置
+ * 产品配置
  */
-
-export const GITHUB_API = 'https://api.github.com';
-export const CACHE_TTL = 300;
 
 // v2rayNG (Android) 架构
 export const NG_ARCHS = [

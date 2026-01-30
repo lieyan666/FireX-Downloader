@@ -380,7 +380,7 @@ async function downloadNG() {
 
     $('#ng-ver').textContent = d.version + (d.prerelease ? ' (pre)' : '');
     $('#ng-fname').textContent = d.filename;
-    $('#ng-fsize').textContent = fmt(d.size);
+    $('#ng-fsize').textContent = d.size ? fmt(d.size) : '获取中';
     info.classList.add('show');
     st.textContent = '开始下载…';
     window.location.href = '/api/download?' + q;
@@ -403,7 +403,7 @@ async function downloadN(pattern) {
     const res = await fetch('/api/info?' + q);
     const d = await res.json();
     if (d.error) throw new Error(d.error);
-    st.textContent = d.version + ' · ' + fmt(d.size) + ' · 下载中…';
+    st.textContent = d.version + ' · 下载中…';
     window.location.href = '/api/download?' + q;
     setTimeout(() => { st.textContent = ''; }, 2000);
   } catch (e) {

@@ -1,3 +1,6 @@
+# priv
+.wrangler
+
 # Logs
 logs
 *.log
