@@ -33,22 +33,23 @@ const N_NOTES=${JSON.stringify(N_NOTES)};`;
 
 const CSS = /*css*/ `
 :root {
-  --bg-base: #0a0a0c;
-  --bg-surface: #121215;
-  --bg-elevated: #1a1a1f;
-  --bg-hover: #222228;
-  --border: #2a2a32;
-  --border-subtle: #1f1f26;
-  --accent: #6366f1;
-  --accent-soft: rgba(99,102,241,.12);
-  --accent-text: #818cf8;
-  --text-primary: #f0f0f2;
-  --text-secondary: #a0a0a8;
-  --text-tertiary: #606068;
+  --bg-base: #08090c;
+  --bg-surface: #0f1114;
+  --bg-elevated: #161a1f;
+  --bg-hover: #1c2128;
+  --border: #252b33;
+  --border-subtle: #1a1f25;
+  --accent: #018eee;
+  --accent-soft: rgba(1,142,238,.1);
+  --accent-glow: rgba(1,142,238,.08);
+  --accent-text: #3aa8f5;
+  --text-primary: #e8eaed;
+  --text-secondary: #9ba1a8;
+  --text-tertiary: #5c6370;
   --success: #22c55e;
   --radius: 12px;
   --radius-sm: 8px;
-  --transition: .15s ease;
+  --transition: .2s cubic-bezier(.4,0,.2,1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -101,7 +102,7 @@ body {
   border-radius: var(--radius);
   cursor: pointer;
   text-align: center;
-  transition: background var(--transition), border-color var(--transition);
+  transition: all var(--transition);
 }
 .tab:hover {
   background: var(--bg-elevated);
@@ -110,11 +111,13 @@ body {
 .tab.active {
   background: var(--accent-soft);
   border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,.03);
 }
 .tab-name {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  transition: color var(--transition);
 }
 .tab.active .tab-name {
   color: var(--accent-text);
@@ -143,13 +146,14 @@ body {
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background var(--transition), color var(--transition);
+  transition: all var(--transition);
 }
 .release-opt:first-child {
   border-right: 1px solid var(--border-subtle);
 }
 .release-opt:hover {
   background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 .release-opt.active {
   background: var(--accent-soft);
@@ -227,12 +231,14 @@ select option {
 }
 .pill:hover {
   color: var(--text-primary);
+  background: var(--bg-hover);
   border-color: var(--text-tertiary);
 }
 .pill.active {
   color: var(--accent-text);
   background: var(--accent-soft);
   border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 
 /* ── Variant List ── */
@@ -251,9 +257,10 @@ select option {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  transition: border-color var(--transition);
+  transition: all var(--transition);
 }
 .variant-item:hover {
+  background: var(--bg-hover);
   border-color: var(--border);
 }
 .variant-info {
@@ -280,10 +287,11 @@ select option {
   border-radius: 6px;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity var(--transition);
+  transition: all var(--transition);
 }
 .variant-dl:hover {
-  opacity: 0.85;
+  background: #0099ff;
+  box-shadow: 0 4px 12px rgba(1,142,238,.25);
 }
 
 /* ── Primary Button ── */
@@ -298,14 +306,16 @@ select option {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: opacity var(--transition);
+  transition: all var(--transition);
 }
 .btn-primary:hover {
-  opacity: 0.85;
+  background: #0099ff;
+  box-shadow: 0 4px 16px rgba(1,142,238,.3);
 }
 .btn-primary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ── Status ── */
@@ -325,6 +335,7 @@ select option {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   display: none;
+  transition: all var(--transition);
 }
 .info-box.show {
   display: block;
@@ -339,7 +350,7 @@ select option {
   color: var(--text-tertiary);
 }
 .info-row span:last-child {
-  color: var(--text-secondary);
+  color: var(--accent-text);
   font-weight: 500;
   text-align: right;
   max-width: 65%;
@@ -357,7 +368,7 @@ select option {
 .notes-title {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--accent-text);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -384,16 +395,18 @@ select option {
 .notes li code {
   font-family: 'SF Mono', Menlo, monospace;
   font-size: 11px;
-  padding: 1px 5px;
+  padding: 2px 6px;
   background: var(--bg-base);
   border-radius: 4px;
+  color: var(--text-secondary);
 }
 .notes li a {
   color: var(--accent-text);
   text-decoration: none;
+  transition: color var(--transition);
 }
 .notes li a:hover {
-  text-decoration: underline;
+  color: var(--accent);
 }
 
 /* ── Footer ── */
@@ -406,6 +419,7 @@ select option {
 .footer a {
   color: var(--text-secondary);
   text-decoration: none;
+  transition: color var(--transition);
 }
 .footer a:hover {
   color: var(--accent-text);
